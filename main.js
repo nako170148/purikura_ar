@@ -56,7 +56,7 @@ video.addEventListener('loadedmetadata', () => {
       // 💗 顔の周囲に many_hearts を表示（画像が読み込まれている場合のみ）
       if (manyHeartsLoaded) {
         const heartSize = 180;
-        ctx.drawImage(manyHearts, x - heartSize / 2, y - heartSize / 2, heartSize, heartSize);
+        ctx.drawImage(manyHearts, x - heartSize-500 / 2, y - heartSize / 2, heartSize, heartSize);
       }
 
       // 🐱 猫耳
