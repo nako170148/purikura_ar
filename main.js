@@ -53,13 +53,14 @@ video.addEventListener('loadedmetadata', () => {
       };
 
       // ランダム画像
-      const images = ['zuttomo.png', 'sukipi.png', 'heart.png'];
-      const selected = images[Math.floor(Math.random() * images.length)];
-      const img = new Image();
-      img.src = 'assets/' + selected;
-      img.onload = () => {
-        ctx.drawImage(img, x - 60, y + 80, 120, 40);
-      };
+    const images = ['zuttomo.png', 'sukipi.png', 'heart.png'];
+    const selected = images[Math.floor(Math.random() * images.length)];
+    const img = new Image();
+    img.src = 'assets/' + selected;
+    img.onload = () => {
+    ctx.drawImage(img, x - 60, y + 80, 120, 40);
+};
+
     });
   }, 100);
 });
