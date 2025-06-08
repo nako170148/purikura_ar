@@ -2,7 +2,7 @@ const video = document.getElementById('video');
 const canvas = document.getElementById('overlay');
 const ctx = canvas.getContext('2d');
 
-// many_hearts画像の読み込みとフラグ設定
+// many_hearts画像
 const manyHearts = new Image();
 let manyHeartsLoaded = false;
 manyHearts.src = 'assets/many_hearts.png';
@@ -10,7 +10,15 @@ manyHearts.onload = () => {
   manyHeartsLoaded = true;
 };
 
-// モデルの読み込み
+// sparkle画像
+const sparkle = new Image();
+let sparkleLoaded = false;
+sparkle.src = 'assets/sparkle.png';
+sparkle.onload = () => {
+  sparkleLoaded = true;
+};
+
+// モデル読み込み
 Promise.all([
   faceapi.nets.tinyFaceDetector.loadFromUri('models/tiny_face_detector'),
   faceapi.nets.faceLandmark68Net.loadFromUri('models/face_landmark_68')
@@ -27,7 +35,10 @@ function startVideo() {
     });
 }
 
-// カメラ映像サイズが確定してから描画処理を開始
+let lastNoseX = null;
+let shakeThreshold = 10;
+let isShaking = false;
+
 video.addEventListener('loadedmetadata', () => {
   const displaySize = {
     width: video.videoWidth,
@@ -53,29 +64,14 @@ video.addEventListener('loadedmetadata', () => {
       const x = nose.x;
       const y = nose.y;
 
-      // 💗 顔の両耳上あたりに many_hearts を表示
+      // 💗 ハート（耳のあたり）
       if (manyHeartsLoaded) {
-        const heartSize = 120;    // ハートのサイズ
-        const offsetX = 80;       // 左右の位置ずらし（耳の方向へ）
-        const offsetY = -60;     // 上方向への位置ずらし（耳の上）
+        const heartSize = 120;
+        const offsetX = 80;
+        const offsetY = -60;
 
-        // 左耳上
-        ctx.drawImage(
-          manyHearts,
-          x - offsetX - heartSize / 2,
-          y + offsetY - heartSize / 2,
-          heartSize,
-          heartSize
-        );
-
-        // 右耳上
-        ctx.drawImage(
-          manyHearts,
-          x + offsetX - heartSize / 2,
-          y + offsetY - heartSize / 2,
-          heartSize,
-          heartSize
-        );
+        ctx.drawImage(manyHearts, x - offsetX - heartSize / 2, y + offsetY - heartSize / 2, heartSize, heartSize);
+        ctx.drawImage(manyHearts, x + offsetX - heartSize / 2, y + offsetY - heartSize / 2, heartSize, heartSize);
       }
 
       // 🐱 猫耳
@@ -93,6 +89,28 @@ video.addEventListener('loadedmetadata', () => {
       img.onload = () => {
         ctx.drawImage(img, x - 60, y + 80, 120, 40);
       };
+
+      // 💫 揺れ検出
+      if (lastNoseX !== null) {
+        const dx = Math.abs(x - lastNoseX);
+        isShaking = dx > shakeThreshold;
+      }
+      lastNoseX = x;
+
+      // ✨ キラキラ（顔の外側に複数）
+      if (isShaking && sparkleLoaded) {
+        const size = 50;
+        const offset = 120;
+
+        // 左上
+        ctx.drawImage(sparkle, x - offset - size / 2, y - offset - size / 2, size, size);
+        // 右上
+        ctx.drawImage(sparkle, x + offset - size / 2, y - offset - size / 2, size, size);
+        // 左下
+        ctx.drawImage(sparkle, x - offset - size / 2, y + offset - size / 2, size, size);
+        // 右下
+        ctx.drawImage(sparkle, x + offset - size / 2, y + offset - size / 2, size, size);
+      }
     });
   }, 100);
 });
