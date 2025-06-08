@@ -2,7 +2,7 @@ const video = document.getElementById('video');
 const canvas = document.getElementById('overlay');
 const ctx = canvas.getContext('2d');
 
-// ハート画像読み込み
+// many_hearts画像の読み込みとフラグ設定
 const manyHearts = new Image();
 let manyHeartsLoaded = false;
 manyHearts.src = 'assets/many_hearts.png';
@@ -10,72 +10,89 @@ manyHearts.onload = () => {
   manyHeartsLoaded = true;
 };
 
-// 顔モデルの読み込み → カメラ起動
+// モデルの読み込み
 Promise.all([
   faceapi.nets.tinyFaceDetector.loadFromUri('models/tiny_face_detector'),
   faceapi.nets.faceLandmark68Net.loadFromUri('models/face_landmark_68')
-]).then(startCamera);
+]).then(startVideo);
 
-// カメラ映像と MediaPipe Hands を連携して処理
-function startCamera() {
-  const camera = new Camera(video, {
-    onFrame: async () => {
-      await hands.send({ image: video });
-    },
-    width: 640,
-    height: 480
-  });
-  camera.start();
+// カメラ起動
+function startVideo() {
+  navigator.mediaDevices.getUserMedia({ video: true })
+    .then(stream => {
+      video.srcObject = stream;
+    })
+    .catch(err => {
+      console.error('カメラにアクセスできません:', err);
+    });
 }
 
-  // 顔の描画
-  const detections = await faceapi
-    .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
-    .withFaceLandmarks();
+// カメラ映像サイズが確定してから描画処理を開始
+video.addEventListener('loadedmetadata', () => {
+  const displaySize = {
+    width: video.videoWidth,
+    height: video.videoHeight
+  };
 
-  detections.forEach(result => {
-    const resized = faceapi.resizeResults(result, displaySize);
-    const landmarks = resized.landmarks;
-    const nose = landmarks.getNose()[0];
-    const x = nose.x;
-    const y = nose.y;
+  canvas.width = displaySize.width;
+  canvas.height = displaySize.height;
 
-    // 💗 顔の両耳上あたりに many_hearts を表示
-    if (manyHeartsLoaded) {
-      const heartSize = 120;
-      const offsetX = 80;
-      const offsetY = -60;
+  faceapi.matchDimensions(canvas, displaySize);
 
-      ctx.drawImage(
-        manyHearts,
-        x - offsetX - heartSize / 2,
-        y + offsetY - heartSize / 2,
-        heartSize,
-        heartSize
-      );
+  setInterval(async () => {
+    const detections = await faceapi
+      .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
+      .withFaceLandmarks();
 
-      ctx.drawImage(
-        manyHearts,
-        x + offsetX - heartSize / 2,
-        y + offsetY - heartSize / 2,
-        heartSize,
-        heartSize
-      );
-    }
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // 🐱 猫耳
-    const nekomimi = new Image();
-    nekomimi.src = 'assets/nekomimi.png';
-    nekomimi.onload = () => {
-      ctx.drawImage(nekomimi, x - 50, y - 150, 100, 100);
-    };
+    detections.forEach(result => {
+      const resized = faceapi.resizeResults(result, displaySize);
+      const landmarks = resized.landmarks;
+      const nose = landmarks.getNose()[0];
+      const x = nose.x;
+      const y = nose.y;
 
-    // 🖼 ランダム画像
-    const images = ['zuttomo.png', 'sukipi.png', 'heart.png'];
-    const selected = images[Math.floor(Math.random() * images.length)];
-    const img = new Image();
-    img.src = 'assets/' + selected;
-    img.onload = () => {
-      ctx.drawImage(img, x - 60, y + 80, 120, 40);
-    };
-  });
+      // 💗 顔の両耳上あたりに many_hearts を表示
+      if (manyHeartsLoaded) {
+        const heartSize = 120;    // ハートのサイズ
+        const offsetX = 80;       // 左右の位置ずらし（耳の方向へ）
+        const offsetY = -60;     // 上方向への位置ずらし（耳の上）
+
+        // 左耳上
+        ctx.drawImage(
+          manyHearts,
+          x - offsetX - heartSize / 2,
+          y + offsetY - heartSize / 2,
+          heartSize,
+          heartSize
+        );
+
+        // 右耳上
+        ctx.drawImage(
+          manyHearts,
+          x + offsetX - heartSize / 2,
+          y + offsetY - heartSize / 2,
+          heartSize,
+          heartSize
+        );
+      }
+
+      // 🐱 猫耳
+      const nekomimi = new Image();
+      nekomimi.src = 'assets/nekomimi.png';
+      nekomimi.onload = () => {
+        ctx.drawImage(nekomimi, x - 50, y - 150, 100, 100);
+      };
+
+      // 🖼 ランダム画像
+      const images = ['zuttomo.png', 'sukipi.png', 'heart.png'];
+      const selected = images[Math.floor(Math.random() * images.length)];
+      const img = new Image();
+      img.src = 'assets/' + selected;
+      img.onload = () => {
+        ctx.drawImage(img, x - 60, y + 80, 120, 40);
+      };
+    });
+  }, 100);
+});
