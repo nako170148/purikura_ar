@@ -1,4 +1,4 @@
-const video = document.getElementById('video'); 
+const video = document.getElementById('video');  
 const canvas = document.getElementById('overlay');
 const ctx = canvas.getContext('2d');
 
