@@ -115,7 +115,9 @@ hands.onResults(async results => {
       const x = wrist.x * canvas.width;
       const y = wrist.y * canvas.height;
 
-      ctx.drawImage(kirakira, x - 30, y - 30, 60, 60); // キラキラを手首に表示
+      if (kirakira.complete && kirakira.naturalWidth !== 0) {
+      ctx.drawImage(kirakira, x - 30, y - 30, 60, 60);
+    }
     });
   }
 });
