@@ -56,7 +56,7 @@ video.addEventListener('loadedmetadata', () => {
       // 💗 顔の両耳上あたりに many_hearts を表示
       if (manyHeartsLoaded) {
         const heartSize = 120;    // ハートのサイズ
-        const offsetX = 30;       // 左右の位置ずらし（耳の方向へ）
+        const offsetX = 60;       // 左右の位置ずらし（耳の方向へ）
         const offsetY = -60;     // 上方向への位置ずらし（耳の上）
 
         // 左耳上
