@@ -25,7 +25,7 @@ video.addEventListener('play', () => {
   // 描画ループ
   setInterval(async () => {
     const detection = await faceapi
-      .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
+      .detectAllFace(video, new faceapi.TinyFaceDetectorOptions())
       .withFaceLandmarks();
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
