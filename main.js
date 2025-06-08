@@ -21,7 +21,14 @@ function startVideo() {
 
 // 描画ループ
 video.addEventListener('play', () => {
-  const displaySize = { width: video.width, height: video.height };
+  const displaySize = {
+    width: video.videoWidth,
+    height: video.videoHeight
+  };
+
+  canvas.width = displaySize.width;
+  canvas.height = displaySize.height;
+
   faceapi.matchDimensions(canvas, displaySize);
 
   setInterval(async () => {
@@ -33,28 +40,7 @@ video.addEventListener('play', () => {
 
     detections.forEach(result => {
       const resized = faceapi.resizeResults(result, displaySize);
-      const landmarks = resized.landmarks;
-
-      const nose = landmarks.getNose()[0];
-      const x = nose.x;
-      const y = nose.y;
-
-      // 🐱 猫耳画像を描画
-      const nekomimi = new Image();
-      nekomimi.src = 'assets/nekomimi.png';
-      nekomimi.onload = () => {
-        ctx.drawImage(nekomimi, x - 50, y - 150, 100, 100);
-      };
-
-      // 💖 ランダム画像リストから1枚選ぶ
-      const randomImages = ['zuttomo.png', 'sukipi.png', 'heart.png'];
-      const selectedImage = randomImages[Math.floor(Math.random() * randomImages.length)];
-
-      const effectImg = new Image();
-      effectImg.src = 'assets/' + selectedImage;
-      effectImg.onload = () => {
-        ctx.drawImage(effectImg, x - 60, y + 80, 120, 40);
-      };
+      ...
     });
   }, 100);
 });
