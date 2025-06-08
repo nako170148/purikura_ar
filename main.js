@@ -2,7 +2,7 @@ const video = document.getElementById('video');
 const canvas = document.getElementById('overlay');
 const ctx = canvas.getContext('2d');
 
-// many_hearts画像の読み込みとフラグ設定
+// ハート画像読み込み
 const manyHearts = new Image();
 let manyHeartsLoaded = false;
 manyHearts.src = 'assets/many_hearts.png';
@@ -10,25 +10,41 @@ manyHearts.onload = () => {
   manyHeartsLoaded = true;
 };
 
-// モデルの読み込み
+// キラキラ画像読み込み
+const kirakira = new Image();
+kirakira.src = 'assets/kirakira.png';
+
+// MediaPipe Hands の設定
+const hands = new Hands({
+  locateFile: file => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+});
+hands.setOptions({
+  maxNumHands: 2,
+  modelComplexity: 1,
+  minDetectionConfidence: 0.7,
+  minTrackingConfidence: 0.7
+});
+
+// 顔モデルの読み込み → カメラ起動
 Promise.all([
   faceapi.nets.tinyFaceDetector.loadFromUri('models/tiny_face_detector'),
   faceapi.nets.faceLandmark68Net.loadFromUri('models/face_landmark_68')
-]).then(startVideo);
+]).then(startCamera);
 
-// カメラ起動
-function startVideo() {
-  navigator.mediaDevices.getUserMedia({ video: true })
-    .then(stream => {
-      video.srcObject = stream;
-    })
-    .catch(err => {
-      console.error('カメラにアクセスできません:', err);
-    });
+// カメラ映像と MediaPipe Hands を連携して処理
+function startCamera() {
+  const camera = new Camera(video, {
+    onFrame: async () => {
+      await hands.send({ image: video });
+    },
+    width: 640,
+    height: 480
+  });
+  camera.start();
 }
 
-// カメラ映像サイズが確定してから描画処理を開始
-video.addEventListener('loadedmetadata', () => {
+// Handsの検出結果を受け取るたびにこの関数が呼ばれる
+hands.onResults(async results => {
   const displaySize = {
     width: video.videoWidth,
     height: video.videoHeight
@@ -36,63 +52,70 @@ video.addEventListener('loadedmetadata', () => {
 
   canvas.width = displaySize.width;
   canvas.height = displaySize.height;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  faceapi.matchDimensions(canvas, displaySize);
+  // 顔の描画
+  const detections = await faceapi
+    .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
+    .withFaceLandmarks();
 
-  setInterval(async () => {
-    const detections = await faceapi
-      .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
-      .withFaceLandmarks();
+  detections.forEach(result => {
+    const resized = faceapi.resizeResults(result, displaySize);
+    const landmarks = resized.landmarks;
+    const nose = landmarks.getNose()[0];
+    const x = nose.x;
+    const y = nose.y;
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // 💗 顔の両耳上あたりに many_hearts を表示
+    if (manyHeartsLoaded) {
+      const heartSize = 120;
+      const offsetX = 80;
+      const offsetY = -60;
 
-    detections.forEach(result => {
-      const resized = faceapi.resizeResults(result, displaySize);
-      const landmarks = resized.landmarks;
-      const nose = landmarks.getNose()[0];
-      const x = nose.x;
-      const y = nose.y;
+      // 左耳上
+      ctx.drawImage(
+        manyHearts,
+        x - offsetX - heartSize / 2,
+        y + offsetY - heartSize / 2,
+        heartSize,
+        heartSize
+      );
 
-      // 💗 顔の両耳上あたりに many_hearts を表示
-      if (manyHeartsLoaded) {
-        const heartSize = 120;    // ハートのサイズ
-        const offsetX = 80;       // 左右の位置ずらし（耳の方向へ）
-        const offsetY = -60;     // 上方向への位置ずらし（耳の上）
+      // 右耳上
+      ctx.drawImage(
+        manyHearts,
+        x + offsetX - heartSize / 2,
+        y + offsetY - heartSize / 2,
+        heartSize,
+        heartSize
+      );
+    }
 
-        // 左耳上
-        ctx.drawImage(
-          manyHearts,
-          x - offsetX - heartSize / 2,
-          y + offsetY - heartSize / 2,
-          heartSize,
-          heartSize
-        );
+    // 🐱 猫耳
+    const nekomimi = new Image();
+    nekomimi.src = 'assets/nekomimi.png';
+    nekomimi.onload = () => {
+      ctx.drawImage(nekomimi, x - 50, y - 150, 100, 100);
+    };
 
-        // 右耳上
-        ctx.drawImage(
-          manyHearts,
-          x + offsetX - heartSize / 2,
-          y + offsetY - heartSize / 2,
-          heartSize,
-          heartSize
-        );
-      }
+    // 🖼 ランダム画像
+    const images = ['zuttomo.png', 'sukipi.png', 'heart.png'];
+    const selected = images[Math.floor(Math.random() * images.length)];
+    const img = new Image();
+    img.src = 'assets/' + selected;
+    img.onload = () => {
+      ctx.drawImage(img, x - 60, y + 80, 120, 40);
+    };
+  });
 
-      // 🐱 猫耳
-      const nekomimi = new Image();
-      nekomimi.src = 'assets/nekomimi.png';
-      nekomimi.onload = () => {
-        ctx.drawImage(nekomimi, x - 50, y - 150, 100, 100);
-      };
+  // 🖐 手が検出されたらキラキラを描画
+  if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+    results.multiHandLandmarks.forEach(landmarks => {
+      const wrist = landmarks[0]; // 手首の位置
+      const x = wrist.x * canvas.width;
+      const y = wrist.y * canvas.height;
 
-      // 🖼 ランダム画像
-      const images = ['zuttomo.png', 'sukipi.png', 'heart.png'];
-      const selected = images[Math.floor(Math.random() * images.length)];
-      const img = new Image();
-      img.src = 'assets/' + selected;
-      img.onload = () => {
-        ctx.drawImage(img, x - 60, y + 80, 120, 40);
-      };
+      ctx.drawImage(kirakira, x - 30, y - 30, 60, 60); // キラキラを手首に表示
     });
-  }, 100);
+  }
 });

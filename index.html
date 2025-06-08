@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>平成プリクラAR</title>
+  <title>プリクラAR</title>
   <link rel="stylesheet" href="style.css">
 
   <!-- スタイル（任意） -->
@@ -22,8 +22,12 @@
     }
   </style>
 
-  <!-- face-api.js ライブラリ（安定版） -->
+  <!-- face-api.js ライブラリ -->
   <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+
+  <!-- MediaPipe Hands + CameraUtils ライブラリ（CDN） -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
 
   <!-- メインの処理スクリプト -->
   <script defer src="main.js"></script>
