@@ -1,6 +1,9 @@
 const video = document.getElementById('video');
 const canvas = document.getElementById('overlay');
 const ctx = canvas.getContext('2d');
+const manyHearts = new Image();
+manyHearts.src = 'assets/many_hearts.png'; // assetsフォルダ内に保存
+
 
 // モデルの読み込み
 Promise.all([
@@ -44,6 +47,10 @@ video.addEventListener('loadedmetadata', () => {
       const nose = landmarks.getNose()[0];
       const x = nose.x;
       const y = nose.y;
+
+      // 顔の周囲に常に many_hearts を表示
+const heartSize = 180;
+ctx.drawImage(manyHearts, x - heartSize / 2, y - heartSize / 2, heartSize, heartSize);
 
       // 猫耳
       const nekomimi = new Image();
