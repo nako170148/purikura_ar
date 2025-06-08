@@ -10,17 +10,6 @@ manyHearts.onload = () => {
   manyHeartsLoaded = true;
 };
 
-// MediaPipe Hands の設定
-const hands = new Hands({
-  locateFile: file => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
-});
-hands.setOptions({
-  maxNumHands: 2,
-  modelComplexity: 1,
-  minDetectionConfidence: 0.7,
-  minTrackingConfidence: 0.7
-});
-
 // 顔モデルの読み込み → カメラ起動
 Promise.all([
   faceapi.nets.tinyFaceDetector.loadFromUri('models/tiny_face_detector'),
