@@ -12,7 +12,11 @@ manyHearts.onload = () => {
 
 // キラキラ画像読み込み
 const kirakira = new Image();
+let kirakiraLoaded = false;
 kirakira.src = 'assets/kirakira.png';
+kirakira.onload = () => {
+  kirakiraLoaded = true;
+};
 
 // MediaPipe Hands の設定
 const hands = new Hands({
@@ -72,7 +76,6 @@ hands.onResults(async results => {
       const offsetX = 80;
       const offsetY = -60;
 
-      // 左耳上
       ctx.drawImage(
         manyHearts,
         x - offsetX - heartSize / 2,
@@ -81,7 +84,6 @@ hands.onResults(async results => {
         heartSize
       );
 
-      // 右耳上
       ctx.drawImage(
         manyHearts,
         x + offsetX - heartSize / 2,
@@ -109,15 +111,13 @@ hands.onResults(async results => {
   });
 
   // 🖐 手が検出されたらキラキラを描画
-  if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+  if (kirakiraLoaded && results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
     results.multiHandLandmarks.forEach(landmarks => {
       const wrist = landmarks[0]; // 手首の位置
       const x = wrist.x * canvas.width;
       const y = wrist.y * canvas.height;
 
-      if (kirakira.complete && kirakira.naturalWidth !== 0) {
       ctx.drawImage(kirakira, x - 30, y - 30, 60, 60);
-    }
     });
   }
 });
