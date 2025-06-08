@@ -10,14 +10,6 @@ manyHearts.onload = () => {
   manyHeartsLoaded = true;
 };
 
-// キラキラ画像読み込み
-const kirakira = new Image();
-let kirakiraLoaded = false;
-kirakira.src = 'assets/kirakira.png';
-kirakira.onload = () => {
-  kirakiraLoaded = true;
-};
-
 // MediaPipe Hands の設定
 const hands = new Hands({
   locateFile: file => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
@@ -46,17 +38,6 @@ function startCamera() {
   });
   camera.start();
 }
-
-// Handsの検出結果を受け取るたびにこの関数が呼ばれる
-hands.onResults(async results => {
-  const displaySize = {
-    width: video.videoWidth,
-    height: video.videoHeight
-  };
-
-  canvas.width = displaySize.width;
-  canvas.height = displaySize.height;
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   // 顔の描画
   const detections = await faceapi
@@ -109,15 +90,3 @@ hands.onResults(async results => {
       ctx.drawImage(img, x - 60, y + 80, 120, 40);
     };
   });
-
-  // 🖐 手が検出されたらキラキラを描画
-  if (kirakiraLoaded && results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-    results.multiHandLandmarks.forEach(landmarks => {
-      const wrist = landmarks[0]; // 手首の位置
-      const x = wrist.x * canvas.width;
-      const y = wrist.y * canvas.height;
-
-      ctx.drawImage(kirakira, x - 30, y - 30, 60, 60);
-    });
-  }
-});
