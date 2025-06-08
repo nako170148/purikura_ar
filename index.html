@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>平成プリクラAR</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: black;
+    }
+    #video, #overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform: scaleX(-1); /* 鏡映しにする */
+    }
+  </style>
+</head>
+<body>
+
+  <!-- カメラ映像 -->
+  <video id="video" width="640" height="480" autoplay muted playsinline></video>
+
+  <!-- エフェクト描画用 -->
+  <canvas id="overlay" width="640" height="480"></canvas>
+
+  <!-- face-api.js（顔検出ライブラリ） -->
+  <script defer src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
+
+  <!-- メインの処理スクリプト -->
+  <script defer src="main.js"></script>
+
+</body>
+</html>
