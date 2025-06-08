@@ -1,4 +1,4 @@
-const video = document.getElementById('video');  
+const video = document.getElementById('video');
 const canvas = document.getElementById('overlay');
 const ctx = canvas.getContext('2d');
 
@@ -19,8 +19,8 @@ function startVideo() {
     });
 }
 
-// 描画ループ
-video.addEventListener('play', () => {
+// ✅ カメラ映像サイズが確定してから描画処理を開始
+video.addEventListener('loadedmetadata', () => {
   const displaySize = {
     width: video.videoWidth,
     height: video.videoHeight
@@ -40,7 +40,26 @@ video.addEventListener('play', () => {
 
     detections.forEach(result => {
       const resized = faceapi.resizeResults(result, displaySize);
-      ...
+      const landmarks = resized.landmarks;
+      const nose = landmarks.getNose()[0];
+      const x = nose.x;
+      const y = nose.y;
+
+      // 猫耳
+      const nekomimi = new Image();
+      nekomimi.src = 'assets/nekomimi.png';
+      nekomimi.onload = () => {
+        ctx.drawImage(nekomimi, x - 50, y - 150, 100, 100);
+      };
+
+      // ランダム画像
+      const images = ['zuttomo.png', 'sukipi.png', 'heart.png'];
+      const selected = images[Math.floor(Math.random() * images.length)];
+      const img = new Image();
+      img.src = 'assets/' + selected;
+      img.onload = () => {
+        ctx.drawImage(img, x - 60, y + 80, 120, 40);
+      };
     });
   }, 100);
 });
