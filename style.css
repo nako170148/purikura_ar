@@ -29,17 +29,3 @@ body {
   z-index: 2;
   pointer-events: none; /* マウスイベント無効 */
 }
-
-/* ボタンやUI要素を追加する場合（未使用） */
-.ui-button {
-  position: absolute;
-  bottom: 20px;
-  left: 20px;
-  padding: 10px 20px;
-  background-color: hotpink;
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-size: 18px;
-  z-index: 3;
-}
