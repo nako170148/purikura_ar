@@ -1,9 +1,14 @@
 const video = document.getElementById('video');
 const canvas = document.getElementById('overlay');
 const ctx = canvas.getContext('2d');
-const manyHearts = new Image();
-manyHearts.src = 'assets/many_hearts.png'; // assetsフォルダ内に保存
 
+// many_hearts画像の読み込みとフラグ設定
+const manyHearts = new Image();
+let manyHeartsLoaded = false;
+manyHearts.src = 'assets/many_hearts.png';
+manyHearts.onload = () => {
+  manyHeartsLoaded = true;
+};
 
 // モデルの読み込み
 Promise.all([
@@ -22,7 +27,7 @@ function startVideo() {
     });
 }
 
-// ✅ カメラ映像サイズが確定してから描画処理を開始
+// カメラ映像サイズが確定してから描画処理を開始
 video.addEventListener('loadedmetadata', () => {
   const displaySize = {
     width: video.videoWidth,
@@ -48,26 +53,27 @@ video.addEventListener('loadedmetadata', () => {
       const x = nose.x;
       const y = nose.y;
 
-      // 顔の周囲に常に many_hearts を表示
-const heartSize = 180;
-ctx.drawImage(manyHearts, x - heartSize / 2, y - heartSize / 2, heartSize, heartSize);
+      // 💗 顔の周囲に many_hearts を表示（画像が読み込まれている場合のみ）
+      if (manyHeartsLoaded) {
+        const heartSize = 180;
+        ctx.drawImage(manyHearts, x - heartSize / 2, y - heartSize / 2, heartSize, heartSize);
+      }
 
-      // 猫耳
+      // 🐱 猫耳
       const nekomimi = new Image();
       nekomimi.src = 'assets/nekomimi.png';
       nekomimi.onload = () => {
         ctx.drawImage(nekomimi, x - 50, y - 150, 100, 100);
       };
 
-      // ランダム画像
-    const images = ['zuttomo.png', 'sukipi.png', 'heart.png'];
-    const selected = images[Math.floor(Math.random() * images.length)];
-    const img = new Image();
-    img.src = 'assets/' + selected;
-    img.onload = () => {
-    ctx.drawImage(img, x - 60, y + 80, 120, 40);
-};
-
+      // 🖼 ランダム画像
+      const images = ['zuttomo.png', 'sukipi.png', 'heart.png'];
+      const selected = images[Math.floor(Math.random() * images.length)];
+      const img = new Image();
+      img.src = 'assets/' + selected;
+      img.onload = () => {
+        ctx.drawImage(img, x - 60, y + 80, 120, 40);
+      };
     });
   }, 100);
 });
