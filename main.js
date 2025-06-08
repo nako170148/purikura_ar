@@ -53,10 +53,29 @@ video.addEventListener('loadedmetadata', () => {
       const x = nose.x;
       const y = nose.y;
 
-      // 💗 顔の周囲に many_hearts を表示（画像が読み込まれている場合のみ）
+      // 💗 顔の両耳上あたりに many_hearts を表示
       if (manyHeartsLoaded) {
-        const heartSize = 180;
-        ctx.drawImage(manyHearts, x - heartSize-500 / 2, y - heartSize / 2, heartSize, heartSize);
+        const heartSize = 120;    // ハートのサイズ
+        const offsetX = 70;       // 左右の位置ずらし（耳の方向へ）
+        const offsetY = -100;     // 上方向への位置ずらし（耳の上）
+
+        // 左耳上
+        ctx.drawImage(
+          manyHearts,
+          x - offsetX - heartSize / 2,
+          y + offsetY - heartSize / 2,
+          heartSize,
+          heartSize
+        );
+
+        // 右耳上
+        ctx.drawImage(
+          manyHearts,
+          x + offsetX - heartSize / 2,
+          y + offsetY - heartSize / 2,
+          heartSize,
+          heartSize
+        );
       }
 
       // 🐱 猫耳
