@@ -67,7 +67,7 @@ video.addEventListener('loadedmetadata', () => {
       const x = nose.x;
       const y = nose.y;
 
-      // 💗 ハート（耳あたり）
+      //  ハート（耳あたり）
       if (manyHeartsLoaded) {
         const heartSize = 120;
         const offsetX = 80;
@@ -77,14 +77,14 @@ video.addEventListener('loadedmetadata', () => {
         ctx.drawImage(manyHearts, x + offsetX - heartSize / 2, y + offsetY - heartSize / 2, heartSize, heartSize);
       }
 
-      // 🐱 猫耳
+      //  猫耳
       const nekomimi = new Image();
       nekomimi.src = 'assets/nekomimi.png';
       nekomimi.onload = () => {
         ctx.drawImage(nekomimi, x - 50, y - 150, 100, 100);
       };
 
-      // 🖼 ランダム画像
+      //  ランダム画像
       const images = ['zuttomo.png', 'sukipi.png', 'heart.png'];
       const selected = images[Math.floor(Math.random() * images.length)];
       const img = new Image();
@@ -93,7 +93,7 @@ video.addEventListener('loadedmetadata', () => {
         ctx.drawImage(img, x - 60, y + 80, 120, 40);
       };
 
-      // 💫 揺れ検出とフレーム持続処理
+      //  揺れ検出とフレーム持続処理
       if (lastNoseX !== null) {
         const dx = Math.abs(x - lastNoseX);
         if (dx > shakeThreshold) {
@@ -105,7 +105,7 @@ video.addEventListener('loadedmetadata', () => {
       }
       lastNoseX = x;
 
-      // ✨ sparkle表示（顔の外側に4つ）
+      //  sparkle表示（顔の外側に4つ）
       if (isShaking && sparkleLoaded) {
         const size = 50;
         const offset = 120;
